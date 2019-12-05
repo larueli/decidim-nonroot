@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# Made by Ivann LARUELLE / larueli on GitHub and Docker Hub
+# decidim-nonroot on Docker Hub and GitHub
+#
+echo "Container made by Ivann LARUELLE <ivann.laruelle@gmail.com>"
+echo "You will find more info on DockerHub and GitHub : larueli/decidim-nonroot"
+echo "-------------------------------------------------------------------------"
+echo "---- Initialization of the container ----"
+echo "docker-user:x:`id -u`:`id -g`:,,,:/home/docker-user:/bin/bash" >> /etc/passwd
+export RAILS_ENV=production
+echo "---- Manage SSL settings ----"
+if [ ! -d /decidim-app/ssl ]; then mkdir -m 770 /decidim-app/ssl; echo "Create SSL folder"; fi
+if [ ! -f /decidim-app/ssl/ssl.key  ] || [ ! -f /decidim-app/ssl/ssl.crt ]
+then
+    openssl req -x509 -nodes -newkey rsa:2048 -keyout /decidim-app/ssl/ssl.key -out /decidim-app/ssl/ssl.crt -subj '/C=GB/ST=London/L=London/O=Self Signed/OU=IT Department/CN=decidim'
+fi
+chmod 770 /decidim-app/ssl/*
+cd /decidim-app
+echo "---- Edit decidim Settings ----"
+perl -i -pe "s/config.application_name = .*/config.application_name = '${DEC_NAME}'/" config/initializers/decidim.rb
+perl -i -pe "s/config.mailer_sender = .*/config.mailer_sender = '${DEC_MAIL}'/" config/initializers/decidim.rb
+perl -0777 -i -pe "s/config.action_mailer.smtp_settings = {.*}/config.action_mailer.smtp_settings = {\n    :address        => '${DEC_SMTP_ADDRESS}',\n    :port           => '${DEC_SMTP_PORT}',\n    :authentication => :login,\n    :user_name      => '${DEC_SMTP_USERNAME}',\n    :password       => '${DEC_SMTP_PASSWORD}',\n    :domain         => '${DEC_SMTP_DOMAIN}',\n    :enable_starttls_auto => true,\n    :ssl           => true,\n    :openssl_verify_mode => 'none'\n  }/s" config/environments/production.rb
+if [[ ! -z ${GEOCODER_LOOKUP_APP_ID} ]]
+then
+    echo "---- Activating Geocoder ----"
+    perl -0777 -i -pe "s|# config.geocoder = {.*?# }|config.geocoder = {\n   static_map_url: 'https://image.maps.cit.api.here.com/mia/1.6/mapview',\n   here_app_id: Rails.application.secrets.geocoder[:here_app_id],\n   here_app_code: Rails.application.secrets.geocoder[:here_app_code]\n }|s" config/initializers/decidim.rb
+fi
+if [[ ! -z ${ETHERPAD_SERVER} ]]
+then
+    echo "---- Activating Etherpad ----"
+    perl -0777 -i -pe "s|# config.etherpad = {.*?# }|config.etherpad = {\n   server: Rails.application.secrets.etherpad[:server],,\n   api_key: Rails.application.secrets.etherpad[:api_key],\n   api_version: Rails.application.secrets.etherpad[:api_version]\n }|s" config/initializers/decidim.rb
+fi
+sed -i 's/  smtp_port: "587"/  smtp_port: <%= ENV["SMTP_PORT"] %>/' config/secrets.yml
+sed -i 's/  smtp_authentication: "plain"/  smtp_authentication: "login"/' config/secrets.yml
+echo "DATABASE_HOST: ${DB_HOST}" >> config/application.yml
+echo "DATABASE_USERNAME: ${DB_USER}" >> config/application.yml
+echo "DATABASE_PASSWORD: ${DB_PASS}" >> config/application.yml
+echo "DATABASE_PORT: '${DB_PORT}'" >> config/application.yml
+echo "SECRET_KEY_BASE: ${SAFE_KEY_BASE}" >> config/application.yml
+if [[ ! -z ${OMNIAUTH_FACEBOOK_APP_ID} ]]
+then
+    echo "---- Activating Facebook Auth ----"
+    perl -0777 -i -pe "s|    facebook:\n.*?enabled: false|    facebook:\n      enabled: true|s" config/secrets.yml
+fi
+if [[ ! -z ${OMNIAUTH_TWITTER_API_KEY} ]]
+then
+    echo "---- Activating Twitter Auth ----"
+    perl -0777 -i -pe "s|    twitter:\n      enabled: false|    twitter:\n      enabled: true|s" config/secrets.yml
+fi
+if [[ ! -z ${OMNIAUTH_GOOGLE_CLIENT_ID} ]]
+then
+    echo "---- Activating Google Auth ----"
+    perl -0777 -i -pe "s|    google_oauth2:\n      enabled: false|    google_oauth2:\n      enabled: true|s" config/secrets.yml
+fi
+echo "---- Connecting to DB ----"
+echo "If db already exists, show errors, no worries !"
+rails db:create db:migrate RAILS_ENV=production
+echo "---- Adding cronjobs ----"
+#crontab -l > tempcron
+echo "*/30 * * * * cd /decidim-app && bundle exec rake decidim_initiatives:check_validating" >> tempcron
+echo "*/30 * * * * cd /decidim-app && bundle exec rake decidim_initiatives:check_published" >> tempcron
+echo "*/30 * * * * cd /decidim-app && bundle exec rake decidim_initiatives:notify_progress" >> tempcron
+echo "0 3 * * * cd /decidim-app && bundle exec rake decidim:metrics:all" >> tempcron
+echo "0 2 * * * cd /decidim-app && bundle exec rake decidim:open_data:export" >> tempcron
+crontab tempcron
+rm tempcron
+echo "---- Launch Server ----"
+bin/delayed_job start
+/opt/nginx/sbin/nginx -g 'daemon on;'
+echo "---- Adding admin account ----"
+echo "If email already exists, show error, no worries !"
+echo "email = '${DEC_ADMIN_EMAIL}'" > admin.rb
+echo "password = '${DEC_ADMIN_PASSWORD}'" >> admin.rb
+echo "user = Decidim::System::Admin.new(email: email, password: password, password_confirmation: password)" >> admin.rb
+echo "user.save!" >> admin.rb
+rails runner "eval(File.read 'admin.rb')"
+rm admin.rb
+echo "---- Print log for production ----"
+tail -f log/production.log
