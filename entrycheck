@@ -33,11 +33,6 @@ then
 fi
 sed -i 's/  smtp_port: "587"/  smtp_port: <%= ENV["SMTP_PORT"] %>/' config/secrets.yml
 sed -i 's/  smtp_authentication: "plain"/  smtp_authentication: "login"/' config/secrets.yml
-echo "DATABASE_HOST: ${DB_HOST}" >> config/application.yml
-echo "DATABASE_USERNAME: ${DB_USER}" >> config/application.yml
-echo "DATABASE_PASSWORD: ${DB_PASS}" >> config/application.yml
-echo "DATABASE_PORT: '${DB_PORT}'" >> config/application.yml
-echo "SECRET_KEY_BASE: ${SAFE_KEY_BASE}" >> config/application.yml
 if [[ ! -z ${OMNIAUTH_FACEBOOK_APP_ID} ]]
 then
     echo "---- Activating Facebook Auth ----"

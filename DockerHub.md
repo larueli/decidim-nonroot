@@ -57,7 +57,7 @@ There are **mandatory** variables, you'll see later how to define them :
 
     + `DATABASE_HOST` : ip or domain name of the database host
     + `DATABASE_PORT` : the port of postgresql, usually 5432
-    + `DATABASE_USER` : the username
+    + `DATABASE_USERNAME` : the username
     + `DATABASE_PASSWORD` : the password associated to the username
 
 * RAILS :
@@ -137,18 +137,18 @@ decidim:
       - "8080:8080"
       - "8443:8443"
     environment:
-      - DB_PASS=CHANGEMEEEEEE
-      - SAFE_KEY_BASE=14bf2dcb94d4967b03cfb31574d7b0d8752321321482f28bd1cf3bf010fe6d335b79b7d7651a30a82205556def6ecbe73e79a3ce4b33c625aa1c1e0003a4369b
-      - DB_USER=decidim_user
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DEC_NAME=My first decidim instance
-      - DEC_MAIL=test\@mail.fr
+      - SECRET_KEY_BASE=14bf2dcb94d4967b03cfb31574d7b0d8752321321482f28bd1cf3bf010fe6d335b79b7d7651a30a82205556def6ecbe73e79a3ce4b33c625aa1c1e0003a4369b
+      - DATABASE_USERNAME=decidim_user
+      - DATABASE_PASSWORD=CHANGEMEEEEEE
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
       - SMTP_USERNAME=test@mail.fr
       - SMTP_PASSWORD=myPASSWD
       - SMTP_ADDRESS=smtp.test.fr
       - SMTP_DOMAIN=test.fr
       - SMTP_PORT=465
+      - DEC_NAME=My first decidim instance
+      - DEC_MAIL=test\@mail.fr
       - DEC_ADMIN_EMAIL=admin@test.fr
       - DEC_ADMIN_PASSWORD=aVerYStrONGPassWORD
     user: "1004:0"
