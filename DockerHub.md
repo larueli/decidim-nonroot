@@ -93,9 +93,9 @@ There are also facultatives variables :
       + `OMNIAUTH_TWITTER_API_SECRET`
     + CAS :
       + `CAS_URL` : full url to CAS, with https
-      + `CAS_LOGIN_URL` : usually `/login`
+      + `CAS_LOGIN` : usually `/login`
       + `CAS_VALIDATE_URL` : usually `/serviceValidate`
-      + `CAS_LOGOUT_URL` : usually `/logout`
+      + `CAS_LOGOUT` : usually `/logout`
       + `CAS_UID_FIELD` : The user attribute unique identifier.
     
 * GEOCODER (HereMaps) : 
