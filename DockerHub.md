@@ -11,11 +11,11 @@ This container is made to be easy to use and to deploy, and secure enough for Op
 
 * Able to run as non root user (must be root group), so works in OKD, or OpenShift
 * Mail sending via SMTP with SSL
-* French language included
+* All available languages activated
 * Working outside the box with no complex config
 * Latest decidim version (v.0.19.0)
 * Daily run of metrics and open-data export
-* OAuth support, with automatic activation
+* OAuth (Facebook, Twitter, Google, CAS) support, with automatic activation
 * Highly customizable with environment variables
 
 ## How to use it ?
@@ -83,14 +83,20 @@ There are also facultatives variables :
 
 * Social authentification :
     + Facebook :
-        + `OMNIAUTH_FACEBOOK_APP_ID`
-        + `OMNIAUTH_FACEBOOK_APP_SECRET`
+      + `OMNIAUTH_FACEBOOK_APP_ID`
+       + `OMNIAUTH_FACEBOOK_APP_SECRET`
     + Google :
-        + `OMNIAUTH_GOOGLE_CLIENT_ID`
-        + `OMNIAUTH_GOOGLE_CLIENT_SECRET`
+      + `OMNIAUTH_GOOGLE_CLIENT_ID`
+      + `OMNIAUTH_GOOGLE_CLIENT_SECRET`
     + Twitter :
-        + `OMNIAUTH_TWITTER_API_KEY`
-        + `OMNIAUTH_TWITTER_API_SECRET`
+      + `OMNIAUTH_TWITTER_API_KEY`
+      + `OMNIAUTH_TWITTER_API_SECRET`
+    + CAS :
+      + `CAS_URL` : full url to CAS, with https
+      + `CAS_LOGIN_URL` : usually `/login`
+      + `CAS_VALIDATE_URL` : usually `/serviceValidate`
+      + `CAS_LOGOUT_URL` : usually `/logout`
+      + `CAS_UID_FIELD` : The user attribute unique identifier.
     
 * GEOCODER (HereMaps) : 
     + `GEOCODER_LOOKUP_APP_ID`

@@ -11,11 +11,11 @@ You'll find here the files used to build my Docker image for [decidim, free Open
 
 * Able to run as non root user (must be root group), so works in OKD, or OpenShift, Kubernetes
 * Mail sending via SMTP with SSL
-* French language included
+* All available languages activated
 * Working outside the box with no complex config
 * Latest decidim version (v.0.19.0)
 * Daily run of metrics and open-data export
-* OAuth support, with automatic activation
+* OAuth (Facebook, Twitter, Google, CAS) support, with automatic activation
 * Highly customizable with environment variables
 
 ## How does it work ?

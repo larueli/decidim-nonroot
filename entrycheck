@@ -48,6 +48,11 @@ then
     echo "---- Activating Google Auth ----"
     perl -0777 -i -pe "s|    google_oauth2:\n      enabled: false|    google_oauth2:\n      enabled: true|s" config/secrets.yml
 fi
+if [[ ! -z ${CAS_URL} ]]
+then
+	echo "---- Activating CAS Auth ----"
+	perl -0777 -i -pe "s/  omniauth:/  omniauth:\n    cas:\n      enabled:true\n      url: <%= ENV['CAS_URL'] %>\n      login_url: <%= ENV['CAS_LOGIN_URL'] %>\n      service_validate_url: <%= ENV['CAS_VALIDATE_URL'] %>\n      logout_url: <%= ENV['CAS_LOGOUT_URL'] %>\n      uid_field: <%= ENV['CAS_UID_FIELD'] %>/s" config/secrets.yml
+fi
 echo "---- Connecting to DB ----"
 echo "If db already exists, show errors, no worries !"
 rails db:create db:migrate RAILS_ENV=production
