@@ -51,7 +51,9 @@ fi
 if [[ ! -z ${CAS_URL} ]]
 then
 	echo "---- Activating CAS Auth ----"
-	perl -0777 -i -pe "s/  omniauth:/  omniauth:\n    cas:\n      enabled:true\n      url: <%= ENV['CAS_URL'] %>\n      login_url: <%= ENV['CAS_LOGIN_URL'] %>\n      service_validate_url: <%= ENV['CAS_VALIDATE_URL'] %>\n      logout_url: <%= ENV['CAS_LOGOUT_URL'] %>\n      uid_field: <%= ENV['CAS_UID_FIELD'] %>/s" config/secrets.yml
+	perl -0777 -i -pe "s/  omniauth:/  omniauth:\n    cas:\n      enabled: true\n      url: <%= ENV['CAS_URL'] %>\n      login_url: <%= ENV['CAS_LOGIN'] %>\n      service_validate_url: <%= ENV['CAS_VALIDATE_URL'] %>\n      logout_url: <%= ENV['CAS_LOGOUT'] %>\n      uid_field: <%= ENV['CAS_UID_FIELD'] %>/s" config/secrets.yml
+        sed -i "s/OMNIAUTH_PROVIDERS = \[:facebook, :twitter, :google_oauth2, (:developer if Rails\.env\.development?)\].compact/OMNIAUTH_PROVIDERS = [:facebook, :twitter, :google_oauth2, :cas, (:developer if Rails.env.development?)].compact/" /usr/local/bundle/gems/decidim-core-0.19.0/app/models/decidim/user.rb
+	perl -0777 -i -pe "s/  # ==> Warden configuration/  if Rails.application.secrets.dig(:omniauth, :cas).present?\n    config.omniauth :cas, url: Rails.application.secrets.omniauth[:cas][:url], login_url: Rails.application.secrets.omniauth[:cas][:login_url], service_validate_url: Rails.application.secrets.omniauth[:cas][:service_validate_url], logout_url: Rails.application.secrets.omniauth[:cas][:logout_url], uid_field: Rails.application.secrets.omniauth[:cas][:uid_field]\n  end\n  # ==> Warden configuration/s" /usr/local/bundle/gems/decidim-core-0.19.0/config/initializers/devise.rb
 fi
 echo "---- Connecting to DB ----"
 echo "If db already exists, show errors, no worries !"

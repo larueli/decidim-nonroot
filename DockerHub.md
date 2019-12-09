@@ -11,7 +11,7 @@ This container is made to be easy to use and to deploy, and secure enough for Op
 
 * Able to run as non root user (must be root group), so works in OKD, or OpenShift
 * Mail sending via SMTP with SSL
-* All available languages activated
+* All available languages activated (en, ar, ca, de, es, eu, fi, fr, gl, hu, id, it, nl, no, pl, pt, ru, sv, tr, uk)
 * Working outside the box with no complex config
 * Latest decidim version (v.0.19.0)
 * Daily run of metrics and open-data export

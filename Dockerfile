@@ -19,7 +19,7 @@ RUN echo "gem 'omniauth-cas'" >> Gemfile && echo "gem 'figaro'" >> Gemfile && ec
     sed -i "s/  config.available_locales = \[:en, :ca, :es\]/  config.available_locales = \[:en, :ar, :ca, :de, :es, :eu, :fi, :fr, :gl, :hu, :id, :it, :nl, :no, :pl, :pt, :ru, :sv, :tr, :uk\]/g" config/initializers/decidim.rb && \
     echo "gem 'wkhtmltopdf-binary'" >> Gemfile && echo "gem 'wicked_pdf'" >> Gemfile && bundle install && rails generate wicked_pdf && \
     echo "gem 'decidim-consultations'" >> Gemfile && echo "gem 'decidim-initiatives'" >> Gemfile && bundle install && rails decidim_initiatives:install:migrations && rails decidim_consultations:install:migrations && \
-    rails assets:precompile RAILS_ENV=production && chmod -R 770 /decidim-app
+    rails assets:precompile RAILS_ENV=production && chmod -R 770 /decidim-app && chmod -R g=rwx /usr/local/bundle/gems/decidim-core*
 
 COPY nginx.conf /opt/nginx/conf/nginx.conf
 COPY entrycheck /entrycheck.sh
