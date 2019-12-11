@@ -18,9 +18,11 @@ fi
 chmod 770 /decidim-app/ssl/*
 cd /decidim-app
 echo "---- Edit decidim Settings ----"
-perl -i -pe "s/config.application_name = .*/config.application_name = '${DEC_NAME}'/" config/initializers/decidim.rb
-perl -i -pe "s/config.mailer_sender = .*/config.mailer_sender = '${DEC_MAIL}'/" config/initializers/decidim.rb
-perl -0777 -i -pe "s/config.action_mailer.smtp_settings = {.*}/config.action_mailer.smtp_settings = {\n    :address        => '${DEC_SMTP_ADDRESS}',\n    :port           => '${DEC_SMTP_PORT}',\n    :authentication => :login,\n    :user_name      => '${DEC_SMTP_USERNAME}',\n    :password       => '${DEC_SMTP_PASSWORD}',\n    :domain         => '${DEC_SMTP_DOMAIN}',\n    :enable_starttls_auto => true,\n    :ssl           => true,\n    :openssl_verify_mode => 'none'\n  }/s" config/environments/production.rb
+perl -i -pe "s/config.application_name = .*/config.application_name = Rails.application.secrets.dec_name/" config/initializers/decidim.rb
+perl -i -pe "s/config.mailer_sender = .*/config.mailer_sender = Rails.application.secrets.dec_mail/" config/initializers/decidim.rb
+echo '  dec_name: <%= ENV["DEC_NAME"] %>' >> config/secrets.yml
+echo '  dec_mail: <%= ENV["DEC_MAIL"] %>' >> config/secrets.yml
+perl -0777 -i -pe "s/config.action_mailer.smtp_settings = {/config.action_controller.forgery_protection_origin_check = false\n  config.action_mailer.smtp_settings = {\n     :ssl => true,\n/s" config/environments/production.rb
 if [[ ! -z ${GEOCODER_LOOKUP_APP_ID} ]]
 then
     echo "---- Activating Geocoder ----"
@@ -50,10 +52,10 @@ then
 fi
 if [[ ! -z ${CAS_URL} ]]
 then
-	echo "---- Activating CAS Auth ----"
-	perl -0777 -i -pe "s/  omniauth:/  omniauth:\n    cas:\n      enabled: true\n      url: <%= ENV['CAS_URL'] %>\n      login_url: <%= ENV['CAS_LOGIN'] %>\n      service_validate_url: <%= ENV['CAS_VALIDATE_URL'] %>\n      logout_url: <%= ENV['CAS_LOGOUT'] %>\n      uid_field: <%= ENV['CAS_UID_FIELD'] %>/s" config/secrets.yml
+        echo "---- Activating CAS Auth ----"
+        perl -0777 -i -pe "s/  omniauth:/  omniauth:\n    cas:\n      enabled: true\n      url: <%= ENV['CAS_URL'] %>\n      login_url: <%= ENV['CAS_LOGIN'] %>\n      service_validate_url: <%= ENV['CAS_VALIDATE_URL'] %>\n      logout_url: <%= ENV['CAS_LOGOUT'] %>\n      uid_field: <%= ENV['CAS_UID_FIELD'] %>/s" config/secrets.yml
         sed -i "s/OMNIAUTH_PROVIDERS = \[:facebook, :twitter, :google_oauth2, (:developer if Rails\.env\.development?)\].compact/OMNIAUTH_PROVIDERS = [:facebook, :twitter, :google_oauth2, :cas, (:developer if Rails.env.development?)].compact/" /usr/local/bundle/gems/decidim-core-0.19.0/app/models/decidim/user.rb
-	perl -0777 -i -pe "s/  # ==> Warden configuration/  if Rails.application.secrets.dig(:omniauth, :cas).present?\n    config.omniauth :cas, url: Rails.application.secrets.omniauth[:cas][:url], login_url: Rails.application.secrets.omniauth[:cas][:login_url], service_validate_url: Rails.application.secrets.omniauth[:cas][:service_validate_url], logout_url: Rails.application.secrets.omniauth[:cas][:logout_url], uid_field: Rails.application.secrets.omniauth[:cas][:uid_field]\n  end\n  # ==> Warden configuration/s" /usr/local/bundle/gems/decidim-core-0.19.0/config/initializers/devise.rb
+        perl -0777 -i -pe "s/  # ==> Warden configuration/  if Rails.application.secrets.dig(:omniauth, :cas).present?\n    config.omniauth :cas, url: Rails.application.secrets.omniauth[:cas][:url], login_url: Rails.application.secrets.omniauth[:cas][:login_url], service_validate_url: Rails.application.secrets.omniauth[:cas][:service_validate_url], logout_url: Rails.application.secrets.omniauth[:cas][:logout_url], uid_field: Rails.application.secrets.omniauth[:cas][:uid_field]\n  end\n  # ==> Warden configuration/s" /usr/local/bundle/gems/decidim-core-0.19.0/config/initializers/devise.rb
 fi
 echo "---- Connecting to DB ----"
 echo "If db already exists, show errors, no worries !"

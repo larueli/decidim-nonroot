@@ -76,15 +76,15 @@ There are **mandatory** variables, you'll see later how to define them :
 
     + `DEC_ADMIN_EMAIL` : mail of the admin account to be created. Do **not** escape the `@`
     + `DEC_ADMIN_PASSWORD` : its **strong** password
-    + `DEC_NAME` : the name of your decidim instance. Used for mail.
-    + `DEC_MAIL` : the mail address used to send mail via SMTP. You **must** escape the `@` with `\`. Example : `test\@mail.org`
+    + `DEC_NAME` : the name of your decidim instance.
+    + `DEC_MAIL` : the mail address used to send mail via SMTP. Do **not** escape the `@`
 
 There are also facultatives variables :
 
 * Social authentification :
     + Facebook :
       + `OMNIAUTH_FACEBOOK_APP_ID`
-       + `OMNIAUTH_FACEBOOK_APP_SECRET`
+      + `OMNIAUTH_FACEBOOK_APP_SECRET`
     + Google :
       + `OMNIAUTH_GOOGLE_CLIENT_ID`
       + `OMNIAUTH_GOOGLE_CLIENT_SECRET`
@@ -154,7 +154,7 @@ decidim:
       - SMTP_DOMAIN=test.fr
       - SMTP_PORT=465
       - DEC_NAME=My first decidim instance
-      - DEC_MAIL=test\@mail.fr
+      - DEC_MAIL=test@mail.fr
       - DEC_ADMIN_EMAIL=admin@test.fr
       - DEC_ADMIN_PASSWORD=aVerYStrONGPassWORD
     user: "1004:0"
