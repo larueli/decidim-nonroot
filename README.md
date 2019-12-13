@@ -17,6 +17,7 @@ You'll find here the files used to build my Docker image for [decidim, free Open
 * Daily run of metrics and open-data export
 * OAuth (Facebook, Twitter, Google, CAS) support, with automatic activation
 * Highly customizable with environment variables
+* Ability to run your init scripts before starting the server
 
 ## How does it work ?
 

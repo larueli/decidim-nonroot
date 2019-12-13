@@ -57,6 +57,17 @@ then
         sed -i "s/OMNIAUTH_PROVIDERS = \[:facebook, :twitter, :google_oauth2, (:developer if Rails\.env\.development?)\].compact/OMNIAUTH_PROVIDERS = [:facebook, :twitter, :google_oauth2, :cas, (:developer if Rails.env.development?)].compact/" /usr/local/bundle/gems/decidim-core-0.19.0/app/models/decidim/user.rb
         perl -0777 -i -pe "s/  # ==> Warden configuration/  if Rails.application.secrets.dig(:omniauth, :cas).present?\n    config.omniauth :cas, url: Rails.application.secrets.omniauth[:cas][:url], login_url: Rails.application.secrets.omniauth[:cas][:login_url], service_validate_url: Rails.application.secrets.omniauth[:cas][:service_validate_url], logout_url: Rails.application.secrets.omniauth[:cas][:logout_url], uid_field: Rails.application.secrets.omniauth[:cas][:uid_field]\n  end\n  # ==> Warden configuration/s" /usr/local/bundle/gems/decidim-core-0.19.0/config/initializers/devise.rb
 fi
+echo "---- Execute init scripts ----"
+if [ -d /docker-entrypoint-initdecidim.d ]
+then
+	if [ ! -z $(ls /docker-entrypoint-initdecidim.d/) ]
+	then
+		for f in /docker-entrypoint-initdecidim.d/*; do
+  		echo "     - Running $f"
+  		bash "$f" -H 
+		done
+	fi
+fi
 echo "---- Connecting to DB ----"
 echo "If db already exists, show errors, no worries !"
 rails db:create db:migrate RAILS_ENV=production

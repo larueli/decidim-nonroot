@@ -17,6 +17,7 @@ This container is made to be easy to use and to deploy, and secure enough for Op
 * Daily run of metrics and open-data export
 * OAuth (Facebook, Twitter, Google, CAS) support, with automatic activation
 * Highly customizable with environment variables
+* Ability to run your init scripts before starting the server
 
 ## How to use it ?
 
@@ -177,11 +178,13 @@ then
 
 ```sudo docker-compose up -d```
 
-#### D. Customize settings and SSL
+#### D. Customize settings, SSL, and run your scripts
 
 You can edit the environment variables to add features, as described earlier. You **must** change the `SECRET_KEY_BASE` and all the passwords.
 
 You can add inside the `ssl` folder your certificate as `ssl.crt` and your private key as `ssl.key`. Both must be readable by the root group. The web service will take it into account when you will launch your container. It there is no certificate, it will creates one with `openssl` to allow HTTPS connections out-the-box.
+
+You can mount your scripts inside the `/docker-entrypoint-initdecidim.d` folder. They will be ran after the automated config, but before connecting to the DB and starting the server.
 
 ## Help / issues
 
