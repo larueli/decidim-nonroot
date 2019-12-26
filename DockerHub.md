@@ -13,7 +13,7 @@ This container is made to be easy to use and to deploy, and secure enough for Op
 * Mail sending via SMTP with SSL
 * All available languages activated (en, ar, ca, de, es, eu, fi, fr, gl, hu, id, it, nl, no, pl, pt, ru, sv, tr, uk)
 * Working outside the box with no complex config
-* Latest decidim version (v.0.19.0)
+* Latest decidim version (check tags)
 * Daily run of metrics and open-data export
 * OAuth (Facebook, Twitter, Google, CAS) support, with automatic activation
 * Highly customizable with environment variables
