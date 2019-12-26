@@ -17,6 +17,7 @@ This container is made to be easy to use and to deploy, and secure enough for Op
 * Daily run of metrics and open-data export
 * OAuth (Facebook, Twitter, Google, CAS) support, with automatic activation
 * Highly customizable with environment variables
+* Automatic admin creation
 * Ability to run your init scripts before starting the server
 
 ## How to use it ?
