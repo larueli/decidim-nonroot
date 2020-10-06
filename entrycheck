@@ -7,56 +7,8 @@ echo "Container made by Ivann LARUELLE <ivann.laruelle@gmail.com>"
 echo "You will find more info on DockerHub and GitHub : larueli/decidim-nonroot"
 echo "-------------------------------------------------------------------------"
 echo "---- Initialization of the container ----"
-echo "docker-user:x:`id -u`:`id -g`:,,,:/home/docker-user:/bin/bash" >> /etc/passwd
 export RAILS_ENV=production
-echo "---- Manage SSL settings ----"
-if [ ! -d /decidim-app/ssl ]; then mkdir -m 770 /decidim-app/ssl; echo "Create SSL folder"; fi
-if [ ! -f /decidim-app/ssl/ssl.key  ] || [ ! -f /decidim-app/ssl/ssl.crt ]
-then
-    openssl req -x509 -nodes -newkey rsa:2048 -keyout /decidim-app/ssl/ssl.key -out /decidim-app/ssl/ssl.crt -subj '/C=GB/ST=London/L=London/O=Self Signed/OU=IT Department/CN=decidim'
-fi
-chmod 770 /decidim-app/ssl/*
 cd /decidim-app
-echo "---- Edit decidim Settings ----"
-perl -i -pe "s/config.application_name = .*/config.application_name = Rails.application.secrets.dec_name/" config/initializers/decidim.rb
-perl -i -pe "s/config.mailer_sender = .*/config.mailer_sender = Rails.application.secrets.dec_mail/" config/initializers/decidim.rb
-echo '  dec_name: <%= ENV["DEC_NAME"] %>' >> config/secrets.yml
-echo '  dec_mail: <%= ENV["DEC_MAIL"] %>' >> config/secrets.yml
-perl -0777 -i -pe "s/config.action_mailer.smtp_settings = {/config.action_controller.forgery_protection_origin_check = false\n  config.action_mailer.smtp_settings = {\n     :ssl => true,\n/s" config/environments/production.rb
-if [[ ! -z ${GEOCODER_LOOKUP_APP_ID} ]]
-then
-    echo "---- Activating Geocoder ----"
-    perl -0777 -i -pe "s|# config.geocoder = {.*?# }|config.geocoder = {\n   static_map_url: 'https://image.maps.cit.api.here.com/mia/1.6/mapview',\n   here_app_id: Rails.application.secrets.geocoder[:here_app_id],\n   here_app_code: Rails.application.secrets.geocoder[:here_app_code]\n }|s" config/initializers/decidim.rb
-fi
-if [[ ! -z ${ETHERPAD_SERVER} ]]
-then
-    echo "---- Activating Etherpad ----"
-    perl -0777 -i -pe "s|# config.etherpad = {.*?# }|config.etherpad = {\n   server: Rails.application.secrets.etherpad[:server],,\n   api_key: Rails.application.secrets.etherpad[:api_key],\n   api_version: Rails.application.secrets.etherpad[:api_version]\n }|s" config/initializers/decidim.rb
-fi
-sed -i 's/  smtp_port: "587"/  smtp_port: <%= ENV["SMTP_PORT"] %>/' config/secrets.yml
-sed -i 's/  smtp_authentication: "plain"/  smtp_authentication: "login"/' config/secrets.yml
-if [[ ! -z ${OMNIAUTH_FACEBOOK_APP_ID} ]]
-then
-    echo "---- Activating Facebook Auth ----"
-    perl -0777 -i -pe "s|    facebook:\n.*?enabled: false|    facebook:\n      enabled: true|s" config/secrets.yml
-fi
-if [[ ! -z ${OMNIAUTH_TWITTER_API_KEY} ]]
-then
-    echo "---- Activating Twitter Auth ----"
-    perl -0777 -i -pe "s|    twitter:\n      enabled: false|    twitter:\n      enabled: true|s" config/secrets.yml
-fi
-if [[ ! -z ${OMNIAUTH_GOOGLE_CLIENT_ID} ]]
-then
-    echo "---- Activating Google Auth ----"
-    perl -0777 -i -pe "s|    google_oauth2:\n      enabled: false|    google_oauth2:\n      enabled: true|s" config/secrets.yml
-fi
-if [[ ! -z ${CAS_URL} ]]
-then
-        echo "---- Activating CAS Auth ----"
-        perl -0777 -i -pe "s/  omniauth:/  omniauth:\n    cas:\n      enabled: true\n      url: <%= ENV['CAS_URL'] %>\n      login_url: <%= ENV['CAS_LOGIN'] %>\n      service_validate_url: <%= ENV['CAS_VALIDATE_URL'] %>\n      logout_url: <%= ENV['CAS_LOGOUT'] %>\n      uid_field: <%= ENV['CAS_UID_FIELD'] %>/s" config/secrets.yml
-        sed -i "s/OMNIAUTH_PROVIDERS = \[:facebook, :twitter, :google_oauth2, (:developer if Rails\.env\.development?)\].compact/OMNIAUTH_PROVIDERS = [:facebook, :twitter, :google_oauth2, :cas, (:developer if Rails.env.development?)].compact/" /usr/local/bundle/gems/decidim-core-0.19.0/app/models/decidim/user.rb
-        perl -0777 -i -pe "s/  # ==> Warden configuration/  if Rails.application.secrets.dig(:omniauth, :cas).present?\n    config.omniauth :cas, url: Rails.application.secrets.omniauth[:cas][:url], login_url: Rails.application.secrets.omniauth[:cas][:login_url], service_validate_url: Rails.application.secrets.omniauth[:cas][:service_validate_url], logout_url: Rails.application.secrets.omniauth[:cas][:logout_url], uid_field: Rails.application.secrets.omniauth[:cas][:uid_field]\n  end\n  # ==> Warden configuration/s" /usr/local/bundle/gems/decidim-core-0.19.0/config/initializers/devise.rb
-fi
 echo "---- Execute init scripts ----"
 if [ -d /docker-entrypoint-initdecidim.d ]
 then
@@ -68,28 +20,12 @@ then
 		done
 	fi
 fi
+RAILS_ENV=production bin/rails decidim:upgrade
+sed -i 's/# config.force_ssl = true/config.force_ssl = false/' config/environments/production.rb
+sed -i 's/# config.force_ssl = true/config.force_ssl = false/' config/initializers/decidim.rb
 echo "---- Connecting to DB ----"
 echo "If db already exists, show errors, no worries !"
-rails db:create db:migrate RAILS_ENV=production
-echo "---- Adding cronjobs ----"
-#crontab -l > tempcron
-echo "*/30 * * * * cd /decidim-app && bundle exec rake decidim_initiatives:check_validating" >> tempcron
-echo "*/30 * * * * cd /decidim-app && bundle exec rake decidim_initiatives:check_published" >> tempcron
-echo "*/30 * * * * cd /decidim-app && bundle exec rake decidim_initiatives:notify_progress" >> tempcron
-echo "0 3 * * * cd /decidim-app && bundle exec rake decidim:metrics:all" >> tempcron
-echo "0 2 * * * cd /decidim-app && bundle exec rake decidim:open_data:export" >> tempcron
-crontab tempcron
-rm tempcron
+RAILS_ENV=production bin/rails db:migrate
 echo "---- Launch Server ----"
-bin/delayed_job start
-/opt/nginx/sbin/nginx -g 'daemon on;'
-echo "---- Adding admin account ----"
-echo "If email already exists, show error, no worries !"
-echo "email = '${DEC_ADMIN_EMAIL}'" > admin.rb
-echo "password = '${DEC_ADMIN_PASSWORD}'" >> admin.rb
-echo "user = Decidim::System::Admin.new(email: email, password: password, password_confirmation: password)" >> admin.rb
-echo "user.save!" >> admin.rb
-rails runner "eval(File.read 'admin.rb')"
-rm admin.rb
-echo "---- Print log for production ----"
-tail -f log/production.log
+RAILS_ENV=production bin/delayed_job start
+RAILS_ENV=production bin/rails s

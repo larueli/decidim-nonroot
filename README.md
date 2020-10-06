@@ -4,24 +4,31 @@ You'll find here the files used to build my Docker image for [decidim, free Open
 
 ## Features
 
-* SSL/https support on port 8443 with custom SSL certificates, or automatic openssl generation
 * All official decidim modules installed
-
-> including optional _decidim-consultations_ and _decidim-initiatives_, with cronjobs configured for _decidim-initiatives_ to run every 30 mns
-
+> including optional _decidim-consultations_ and _decidim-initiatives_
 * Able to run as non root user (must be root group), so works in OKD, or OpenShift, Kubernetes
-* Mail sending via SMTP with SSL
-* All available languages activated (en, ar, ca, de, es, eu, fi, fr, gl, hu, id, it, nl, no, pl, pt, ru, sv, tr, uk)
-* Working outside the box with no complex config
 * Latest decidim version (check tags)
-* Daily run of metrics and open-data export
-* OAuth (Facebook, Twitter, Google, CAS) support, with automatic activation
-* Highly customizable with environment variables
+* OAuth (Facebook, Twitter, Google, CAS) support
 * Ability to run your init scripts before starting the server
 
 ## How does it work ?
 
-Feel free to check the Dockerfile to see how the image is built, and the entrycheck script to see what's executed inside your container when you run it.
+You can use the provided docker-compose.yml file to see how the container works. Make sure to set the env var `RAILS_SERVE_STATIC_FILES` to `true` and the `RAILS_ENV` to `production` !
+
+This image exposes port 3000 (no ssl, you have to provide SSL by yourself with a reverse proxy), and has two volumes `/decidim-app/config` and `/decidim-app/public/uploads`. You can simply edit your config inside your container and restart it in order to take effect.
+
+## FAQ
+
+### ERROR Access denied at boot of container
+
+Make sure all the config volume of decidim is owned by the user running in the container (`10520` in the docker-compose example). To be sure, run
+```
+sudo chown -R 10520 /var/lib/docker/volumes/decidim-nonroot_decidim-config/_data
+```
+
+### I don't have any assets (css, js, ...) served !
+
+Make sure the decidim container has the env var `RAILS_SERVE_STATIC_FILES` set to `true` and the `RAILS_ENV` set to `production`
 
 ## More info about the image
 
@@ -33,8 +40,8 @@ I am [Ivann LARUELLE](https://www.linkedin.com/in/ilaruelle/), engineering stude
 
 This tool was made for the students, as I am a student representative, and in collaboration with the UTT Net Group, an non profit organization which aims to [provide IT Service](https://ung.utt.fr/tech/sia) to all UTT students and student organizations.
 
-Contact me for any issue : ivann.laruelle[at]gmail.com
+Contact me for any issue : ivann[at]laruelle.me
 
 # Licence
 
-You are free to download, use, modify, redistribute theses files. The only thing is that you must credit me and keep the header of the files.
+MIT

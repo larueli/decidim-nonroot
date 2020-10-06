@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=decidim
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  decidim:
+    image: larueli/decidim-nonroot
+    user: "10520:0"
+    ports:
+      - "3001:3000"
+    volumes:
+      - decidim-uploads:/decidim-app/public/uploads
+      - decidim-config:/decidim-app/config
+    environment:
+      - DATABASE_URL=postgres://decidim:mysecretpassword@db/decidim
+      - RAILS_ENV=production
+      - RAILS_SERVE_STATIC_FILES=true
+    depends_on:
+      - db
+
+volumes:
+  db-data:
+  decidim-uploads:
+  decidim-config:
