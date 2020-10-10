@@ -2,7 +2,7 @@
 # Made by Ivann LARUELLE / larueli on GitHub and Docker Hub
 # decidim-nonroot on Docker Hub and GitHub
 #
-FROM ruby:2.6.6
+FROM ruby:2.6.3
 
 LABEL maintainer="ivann.laruelle@gmail.com"
 
@@ -18,9 +18,6 @@ WORKDIR /decidim-app
 
 EXPOSE 3000
 
-VOLUME /decidim-app/public/uploads
-VOLUME /decidim-app/config
-
 RUN echo "gem 'omniauth-cas'" >> Gemfile && echo "gem 'omniauth-facebook'" >> Gemfile && echo "gem 'omniauth-google-oauth2'" >> Gemfile && echo "gem 'omniauth-twitter'" >> Gemfile && \
     echo "gem 'figaro'" >> Gemfile && echo "gem 'daemons'" >> Gemfile && echo "gem 'delayed_job_active_record'" >> Gemfile && echo "gem 'wkhtmltopdf-binary'" >> Gemfile && \
     echo "gem 'wicked_pdf'" >> Gemfile && bundle install && echo "gem 'decidim-consultations'" >> Gemfile && echo "gem 'decidim-initiatives'" >> Gemfile && \
@@ -35,5 +32,8 @@ RUN RAILS_ENV=production bin/rails generate wicked_pdf && \
     RAILS_ENV=production bin/rails decidim_initiatives:install:migrations && \
     RAILS_ENV=production bin/rails decidim_consultations:install:migrations && \
     chmod +x /entrycheck.sh && chgrp -R 0 /decidim-app && chmod -R g=rwx /decidim-app
+
+VOLUME /decidim-app/public/uploads
+VOLUME /decidim-app/config
 
 ENTRYPOINT ["/entrycheck.sh"]

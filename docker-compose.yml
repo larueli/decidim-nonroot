@@ -6,6 +6,8 @@ services:
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_USER=decidim
+      # Decidim needs connection as superuser on postgres
+      - POSTGRES_ADMIN_PASSWORD=myadminsecretpassword
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -18,7 +20,8 @@ services:
       - decidim-uploads:/decidim-app/public/uploads
       - decidim-config:/decidim-app/config
     environment:
-      - DATABASE_URL=postgres://decidim:mysecretpassword@db/decidim
+      # Decidim needs connection as superuser on postgres
+      - DATABASE_URL=postgres://postgres:myadminsecretpassword@db/decidim
       - RAILS_MASTER_KEY=34d3cc7c5305dde06865acfa473716cd
       - RAILS_ENV=production
       - RAILS_SERVE_STATIC_FILES=true
