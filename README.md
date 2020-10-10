@@ -24,8 +24,22 @@ You may experience troubles with the config folder (`/decidim-app/config`) permi
 1. Deploy it without attaching volumes. Copy the content of config folder on your personnal computer (by using oc) like `oc rsync decidim-prod-8-k94qd:/decidim-app/config/ config-decidim/`
 2. Create a volume, and copy back the data you downloaded inside this volume. You have two ways : T
     * The openshift way : create a simple pod (webserver or anaything you want), attach this volume to it and copy back using oc.
-    * The hard copy / scp way : connect directly to the machine hosting the data and copy the data of the config folder
+    * The hard copy / scp way : connect directly to the machine hosting the data and copy the data of the config folder. Make sure the group and user are both root (0).
 3. Attach this volume to the pod and redeploy !
+
+## After deployment
+
+1. You can create an admin from the terminal
+
+```
+bin/rails console
+> email = "test@email.com"
+> password = "mystrongpassword"
+> user = Decidim::System::Admin.new(email: email, password: password, password_confirmation: password)
+> user.save!
+```
+
+2. You can configure it as you wish ! The decidim doc about [installation](https://docs.decidim.org/en/install/) and [configuration](https://docs.decidim.org/en/configure/) is very complete.
 
 ## FAQ
 
