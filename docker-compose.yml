@@ -19,7 +19,6 @@ services:
       - decidim-config:/decidim-app/config
     environment:
       - DATABASE_URL=postgres://decidim:mysecretpassword@db/decidim
-      - RAILS_MASTER_KEY=34d3cc7c5305dde06865acfa473716cd
       - RAILS_ENV=production
       - RAILS_SERVE_STATIC_FILES=true
     depends_on:
