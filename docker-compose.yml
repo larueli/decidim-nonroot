@@ -2,25 +2,36 @@ version: "3.8"
 services:
 
   db:
-    image: postgres
+    image: postgres:13
     environment:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_USER=decidim
+      # Decidim needs connection as superuser on postgres
+      - POSTGRES_ADMIN_PASSWORD=myadminsecretpassword
     volumes:
       - db-data:/var/lib/postgresql/data
 
   decidim:
+    build: .
     image: larueli/decidim-nonroot
     user: "10520:0"
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - decidim-uploads:/decidim-app/public/uploads
       - decidim-config:/decidim-app/config
     environment:
+      # Decidim needs connection as superuser on postgres
       - DATABASE_URL=postgres://decidim:mysecretpassword@db/decidim
+#      - RAILS_MASTER_KEY=34d3cc7c5305dde06865acfa473716cd
       - RAILS_ENV=production
       - RAILS_SERVE_STATIC_FILES=true
+      # This is necesary to encrypt passwords
+      - SECRET_KEY_BASE=23203391c825c600801d8f8657be32957b143291e1024e047cb04d0ba435c7e1a01db3d23d88fa0aaf77549a2845bfac3709f02171f0afc1cbd24f09a4fe1552
+      # Logs
+      - RAILS_LOG_TO_STDOUT=true
+      # This is necesary even if other SMTP settings are set in organization.
+      - SMTP_DOMAIN=somedomain.com
     depends_on:
       - db
 
