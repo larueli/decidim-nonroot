@@ -2,7 +2,8 @@
 # Made by Ivann LARUELLE / larueli on GitHub and Docker Hub
 # decidim-nonroot on Docker Hub and GitHub
 #
-FROM ruby:2.6.3
+ARG RUBY_VERSION=2.7.1
+FROM ruby:${RUBY_VERSION}
 
 LABEL maintainer="ivann.laruelle@gmail.com"
 
