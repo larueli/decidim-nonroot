@@ -2,7 +2,7 @@
 # Made by Ivann LARUELLE / larueli on GitHub and Docker Hub
 # decidim-nonroot on Docker Hub and GitHub
 #
-FROM ruby:2.6.3
+FROM ruby:2.7.1
 
 LABEL maintainer="ivann.laruelle@gmail.com"
 
@@ -22,7 +22,7 @@ EXPOSE 3000
 
 RUN echo "gem 'omniauth-cas'" >> Gemfile && echo "gem 'omniauth-facebook'" >> Gemfile && echo "gem 'omniauth-google-oauth2'" >> Gemfile && echo "gem 'omniauth-twitter'" >> Gemfile && \
     echo "gem 'figaro'" >> Gemfile && echo "gem 'daemons'" >> Gemfile && echo "gem 'delayed_job_active_record'" >> Gemfile && echo "gem 'wkhtmltopdf-binary'" >> Gemfile && \
-    echo "gem 'wicked_pdf'" >> Gemfile && echo "gem 'decidim-consultations', '${DECIDIM_VERSION}'" >> Gemfile &&  echo "gem 'decidim-initiatives', '${DECIDIM_VERSION}'" >> Gemfile && \
+    echo "gem 'decidim-consultations', '${DECIDIM_VERSION}'" >> Gemfile &&  echo "gem 'decidim-initiatives', '${DECIDIM_VERSION}'" >> Gemfile && \
     bundle install
 
 COPY entrycheck /entrycheck.sh
