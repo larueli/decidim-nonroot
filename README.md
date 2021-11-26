@@ -10,7 +10,7 @@ You'll find here the files used to build my Docker image for [decidim, free Open
 > including optional _decidim-consultations_ and _decidim-initiatives_ and _decidim-conferences_
 * Able to run as non root user (must be root group), so works in OKD/OpenShift
 * Latest decidim version (check tags)
-* Various omniauth strategies added (facebook, twitter, twitter, keycloak, openid, saml) and [decidim-ldap](https://github.com/diputacioBCN/decidim-diba) installed
+* Various omniauth strategies added (facebook, twitter, twitter, keycloak, openid, saml)
 * Ability to run your init scripts before starting the server
 * Bundled with [docker-compose-wait](https://github.com/ufoscout/docker-compose-wait) which allow to wait for db to start
 
