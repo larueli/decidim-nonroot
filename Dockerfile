@@ -23,12 +23,13 @@ RUN chmod uga+x /usr/local/bin/wait-hosts && apt-get update && curl -sS https://
     apt-get update && apt-get install -y nodejs imagemagick yarn libicu-dev postgresql-client openssl nano bash curl git && apt-get autoremove && \
     mkdir -m 770 /home/docker-user && \
     gem install bundler && gem install bootsnap && gem install listen && mkdir -m 770 /decidim-app && gem install decidim -v ${DECIDIM_VERSION} && decidim /decidim-app && \
+    git clone https://github.com/diputacioBCN/decidim-diba.git && mv decidim-diba/decidim-ldap /decidim-app/decidim-ldap && \
     cd /decidim-app && \
     echo "gem 'omniauth-facebook'" >> Gemfile && echo "gem 'omniauth-twitter'" >> Gemfile && \
     echo "gem 'omniauth-keycloak'" >> Gemfile && echo "gem 'omniauth-openid'" >> Gemfile && echo "gem 'omniauth-saml'" >> Gemfile && \
     echo "gem 'figaro'" >> Gemfile && echo "gem 'daemons'" >> Gemfile && echo "gem 'delayed_job_active_record'" >> Gemfile && echo "gem 'wkhtmltopdf-binary'" >> Gemfile && \
     echo "gem 'decidim-consultations', '${DECIDIM_VERSION}'" >> Gemfile && echo "gem 'decidim-initiatives', '${DECIDIM_VERSION}'" >> Gemfile && \
-    echo "gem 'decidim-conferences', '${DECIDIM_VERSION}'" >> Gemfile && echo "gem 'decidim-ldap'" >> Gemfile && \
+    echo "gem 'decidim-conferences', '${DECIDIM_VERSION}'" >> Gemfile && echo "gem 'decidim-ldap', path: 'decidim-ldap'" >> Gemfile && \
     bundle install && \
     RAILS_ENV=production bin/rails generate wicked_pdf && \
     RAILS_ENV=production bin/rails generate delayed_job:active_record && \
