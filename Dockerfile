@@ -37,7 +37,7 @@ RUN chmod uga+x /usr/local/bin/wait-hosts && apt-get update && curl -sS https://
     RAILS_ENV=production bin/rails decidim_initiatives:install:migrations && \
     RAILS_ENV=production bin/rails decidim_consultations:install:migrations && \
     chmod +x /entrycheck.sh && chgrp -R 0 /decidim-app && chmod -R g=u /decidim-app && chgrp -R 0 /usr/local/bundle && chmod -R g=u /usr/local/bundle && \
-    chown -R 0 "/.npm" && chmod -R g=u "/.npm" && \
+    mkdir /.npm && chown -R 0 /.npm && chmod -R g=u /.npm && \
     cp -rf /decidim-app/config /tmp/decidim-config
 
 VOLUME /decidim-app/public/uploads
