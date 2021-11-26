@@ -6,8 +6,10 @@
 echo "Container made by Ivann LARUELLE <ivann.laruelle@gmail.com>"
 echo "You will find more info on DockerHub and GitHub : larueli/decidim-nonroot"
 echo "-------------------------------------------------------------------------"
+wait-hosts
 echo "---- Initialization of the container ----"
 export RAILS_ENV=production
+rm /decidim-app/tmp/pids/server.pid
 cd /decidim-app
 echo "---- Execute init scripts ----"
 if [ -d /docker-entrypoint-initdecidim.d ]
@@ -20,9 +22,12 @@ then
 		done
 	fi
 fi
+if [ ! "$(ls -A /decidim-app/config)" ]; then
+    mv -f /tmp/decidim-config/* /decidim-app/config/
+	sed -i 's/# config.force_ssl = true/config.force_ssl = false/' /decidim-app/config/environments/production.rb
+	sed -i 's/# config.force_ssl = true/config.force_ssl = false/' /decidim-app/config/initializers/decidim.rb
+fi
 RAILS_ENV=production bin/rails decidim:upgrade
-sed -i 's/# config.force_ssl = true/config.force_ssl = false/' config/environments/production.rb
-sed -i 's/# config.force_ssl = true/config.force_ssl = false/' config/initializers/decidim.rb
 echo "---- Connecting to DB ----"
 echo "If db already exists, show errors, no worries !"
 RAILS_ENV=production bin/rails db:migrate
